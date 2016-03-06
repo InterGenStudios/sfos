@@ -1,0 +1,90 @@
+#!/usr/bin/perl
+# -----------------------------------------------------------------------------------
+# sfos.pl - s.earch f.iles o.f s.ize
+# sfos Version: 1.0
+# Github: https://github.com/InterGenStudios/sfos
+# -----------------------------------------------------------------------------------
+# InterGenStudios: 3-5-2016
+# Copyright (c) 2015: Christopher 'InterGen' Cork  InterGenStudios
+# URL: https://intergenstudios.com
+# -----------------------------------------------------------------------------------
+# License: GPL-2.0+
+# URL: http://opensource.org/licenses/gpl-license.php
+# -----------------------------------------------------------------------------------
+# sfos is free software:
+# You may redistribute it and/or modify it under the terms of the
+# GNU General Public License as published by the Free Software
+# Foundation, either version 2 of the License, or (at your discretion)
+# any later version.
+#
+# ** Note ** - cPanel/WHM servers will need 'Task::Cpanel::Internal'
+#              In WHM, navigate to 'Home »Software »Install a Perl Module'
+#              and install the module package- it may take some time to install
+# -----------------------------------------------------------------------------------
+
+use strict; use warnings; use Switch; use File::Find::Rule; use Math::Round qw(:all);
+
+my $clear_screen = `clear`;
+my %preset_path = (
+    "path1" => "/var/log",
+    "path2" => "/var/lib/mysql",
+    "path3" => "/home"
+);
+my $target_path = "waiting_for_value";
+
+sub run_script {
+    print $clear_screen; print "\n\n  Select search path:\n";
+    print "  -------------------\n\n"; print "  1) /var/log\n";
+    print "  2) /var/lib/mysql\n"; print "  3) /home\n";
+    print "  4) Custom Path\n\n"; print "  [ Enter Selection ]: ";
+    my $initial_path_choice = <>;
+    chomp $initial_path_choice;
+    switch($initial_path_choice){
+        case 1  { $target_path = $preset_path{"path1"}; }
+        case 2  { $target_path = $preset_path{"path2"}; }
+        case 3  { $target_path = $preset_path{"path3"}; }
+        case 4  { print "\n\n  Enter valid search path: ";
+                  my $custom_path = <>; chomp $custom_path;
+                  if ( -d $custom_path ) {
+                      $target_path = $custom_path;
+                  }
+                  else {
+                      print "\n\n  Error!\n\n";
+                      print "  Directory '$custom_path' doesn't exist!\n\n";
+                      sleep(2); run_script();
+                  }
+                }
+        else    { print "\n  Invalid Selection!\n\n"; sleep(2); run_script(); }
+    }
+    if ( -d $target_path ) {
+        print "\n\n  Enter minimum filesize to display in MB: ";
+    }
+    else {
+        print "\n\n  Error!\n\n";
+        print "  Directory '$target_path' doesn't exist!\n\n";
+        sleep(2); run_script();
+    }
+    my $minimum_filesize = <>; chomp $minimum_filesize;
+    print "\n\n  Searching recursively in $target_path";
+    print "\n  for files larger than $minimum_filesize MB...\n\n";
+    print "  --------------------------------------------\n\n";
+    my @files = File::Find::Rule->file()
+                                ->name( '*' )
+                                ->in( $target_path );
+    for my $file (@files) {
+        if ( (stat $file)[7] < ($minimum_filesize * 1048576) ) {
+            next;
+        }
+        else {
+            my $filesize = ( (stat $file)[7] / 1048576 );
+            my $rounded_filesize = nearest(.1, $filesize);
+            printf ("%- 130s %s\n", "\n  $file", "  $rounded_filesize MB");
+        }
+    }
+    print "\n\n\n  --------------------------------------------\n\n";
+    print "\n\n  File list complete.\n\n\n";
+}
+
+run_script();
+
+exit 0;
