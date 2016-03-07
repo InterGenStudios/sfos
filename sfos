@@ -42,7 +42,7 @@ if ( !-d $logdir ) {
     mkdir ( $logdir ) or die "Failed to create $logdir, $!";
 }
 
-open (STDOUT, "| tee -ai $logdir$timestamp");
+open (STDOUT, "| tee $logdir$timestamp");
 
 sub run_script {
     print $clear_screen; print "\n\n  Select search path:\n";
