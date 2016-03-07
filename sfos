@@ -35,7 +35,7 @@ my %preset_path = (
 "path3" => "/home"
 );
 my $target_path = "waiting_for_value";
-my $timestamp = strftime "%F_%X", localtime;
+my $timestamp = strftime "%F_%R:%S", localtime;
 my $logdir = "/var/log/sfos/";
 
 if ( !-d $logdir ) {
