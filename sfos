@@ -19,18 +19,30 @@
 #
 # ** Note ** - cPanel/WHM servers will need 'Task::Cpanel::Internal'
 #              In WHM, navigate to 'Home »Software »Install a Perl Module'
-#              and install the module package- it may take some time to install
+#              and install the module packages- they may take some time to install
 # -----------------------------------------------------------------------------------
 
+# Make sure we're running as root
+die "\n\n  SFOS must be run as root!\n\n" if $> != 0;
+
 use strict; use warnings; use Switch; use File::Find::Rule; use Math::Round qw(:all);
+use POSIX qw(strftime);
 
 my $clear_screen = `clear`;
 my %preset_path = (
-    "path1" => "/var/log",
-    "path2" => "/var/lib/mysql",
-    "path3" => "/home"
+"path1" => "/var/log",
+"path2" => "/var/lib/mysql",
+"path3" => "/home"
 );
 my $target_path = "waiting_for_value";
+my $timestamp = strftime "%F_%X", localtime;
+my $logdir = "/var/log/sfos/";
+
+if ( !-d $logdir ) {
+    mkdir ( $logdir ) or die "Failed to create $logdir, $!";
+}
+
+open (STDOUT, "| tee -ai $logdir$timestamp");
 
 sub run_script {
     print $clear_screen; print "\n\n  Select search path:\n";
@@ -86,5 +98,7 @@ sub run_script {
 }
 
 run_script();
+
+close (STDOUT);
 
 exit 0;
