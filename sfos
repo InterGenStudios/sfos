@@ -125,9 +125,8 @@ if ( -f "pastefile.txt" ) {
     print FILE @newlines;
     close (FILE);
     open (FILE, "<pastefile.txt") || die "Can't open pastefile.txt : $!";
-    print "\n\n";
     while( <FILE> ) {
-        print "  ===> "; print; print "\n  Your paste will expire in 30 days.\n\n\n";
+        print "\n\n  ===> "; print; print "\n  Your paste will expire in 30 days.\n\n\n";
     }
     close (FILE);
 }
