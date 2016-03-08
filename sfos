@@ -40,7 +40,7 @@ my $logdir = "/var/log/sfos/";
 my $logfile = "$logdir" . "$timestamp";
 
 if ( !-d $logdir ) {
-    mkdir ( $logdir ) or die "Failed to create $logdir, $!";
+    mkdir ( $logdir ) || die "Failed to create $logdir : $!";
 }
 
 open (STDOUT, "| tee $logdir$timestamp");
@@ -113,7 +113,7 @@ if ( grep { $paste_instruction eq $_ } qw{Y y YES Yes yes} ) {
 }
 
 if ( -f "pastefile.txt" ) {
-    open (FILE, "<pastefile.txt") || die "File not found";
+    open (FILE, "<pastefile.txt") || die "Can't open pastefile.txt : $!";
     my @lines = <FILE>;
     close(FILE);
     my @newlines;
@@ -121,7 +121,7 @@ if ( -f "pastefile.txt" ) {
         $_ =~ s/view/view\/raw/g;
         push(@newlines,$_);
     }
-    open (FILE, ">pastefile.txt") || die "File not found";
+    open (FILE, ">pastefile.txt") || die "Can't open pastefile.txt : $!";
     print FILE @newlines;
     close (FILE);
     open (FILE, "<pastefile.txt") || die "Can't open pastefile.txt : $!";
