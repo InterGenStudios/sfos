@@ -30,13 +30,14 @@ use POSIX qw(strftime);
 
 my $clear_screen = `clear`;
 my %preset_path = (
-"path1" => "/var/log",
-"path2" => "/var/lib/mysql",
-"path3" => "/home"
+    "path1" => "/var/log",
+    "path2" => "/var/lib/mysql",
+    "path3" => "/home"
 );
 my $target_path = "waiting_for_value";
 my $timestamp = strftime "%F_%R:%S", localtime;
 my $logdir = "/var/log/sfos/";
+my $logfile = "$logdir" . "$timestamp";
 
 if ( !-d $logdir ) {
     mkdir ( $logdir ) or die "Failed to create $logdir, $!";
@@ -98,6 +99,55 @@ sub run_script {
 }
 
 run_script();
+
+print "\n\n  Create pastebin? (Y/n): ";
+
+my $paste_instruction = <>; chomp $paste_instruction;
+if ( $paste_instruction eq "Y" ) {
+    my @paste = `cat $logfile`;
+    open (my $pastefile, '>', 'pastefile.txt') || die "Can't open pastefile.txt : $!";
+    print $pastefile `curl -d name=sfos -d expire=2592000 -d private=1 --data-urlencode text='@paste' -s http://nobits.ml/api/create`;
+    close ($pastefile);
+} elsif ( $paste_instruction eq "y" ) {
+    my @paste = `cat $logfile`;
+    open (my $pastefile, '>', 'pastefile.txt') || die "Can't open pastefile.txt : $!";
+    print $pastefile `curl -d name=sfos -d expire=2592000 -d private=1 --data-urlencode text='@paste' -s http://nobits.ml/api/create`;
+    close ($pastefile);
+} elsif ( $paste_instruction eq "Yes" ) {
+    my @paste = `cat $logfile`;
+    open (my $pastefile, '>', 'pastefile.txt') || die "Can't open pastefile.txt : $!";
+    print $pastefile `curl -d name=sfos -d expire=2592000 -d private=1 --data-urlencode text='@paste' -s http://nobits.ml/api/create`;
+    close ($pastefile);
+} elsif ( $paste_instruction eq "yes" ) {
+    my @paste = `cat $logfile`;
+    open (my $pastefile, '>', 'pastefile.txt') || die "Can't open pastefile.txt : $!";
+    print $pastefile `curl -d name=sfos -d expire=2592000 -d private=1 --data-urlencode text='@paste' -s http://nobits.ml/api/create`;
+    close ($pastefile);
+} else {
+    print "\n\n  Pastebin skipped.\n\n\n";
+}
+
+if ( -f "pastefile.txt" ) {
+    open (FILE, "<pastefile.txt") || die "Can't open pastefile.txt : $!";
+    my @lines = <FILE>;
+    close(FILE);
+    my @newlines;
+    foreach(@lines) {
+        $_ =~ s/view/view\/raw/g;
+        push(@newlines,$_);
+    }
+    open (FILE, ">pastefile.txt") || die "Can't open pastefile.txt : $!";
+    print FILE @newlines;
+    close (FILE);
+    open (FILE, "<pastefile.txt") || die "Can't open pastefile.txt : $!";
+    print "\n\n";
+    while( <FILE> ) {
+        print "  ===> "; print; print "\n  Your paste will expire in 30 days.\n\n\n";
+    }
+    close (FILE);
+}
+
+unlink ("pastefile.txt");
 
 close (STDOUT);
 
