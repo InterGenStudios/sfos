@@ -106,7 +106,7 @@ my $paste_instruction = <>; chomp $paste_instruction;
 if ( grep { $paste_instruction eq $_ } qw{Y y YES Yes yes} ) {
     my @paste = `cat $logfile`;
     open (my $pastefile, '>', 'pastefile.txt') || die "Can't open pastefile.txt : $!";
-    print $pastefile `curl -d name=sfos -d expire=40320 -d private=1 --data-urlencode text='@paste' -s https://intergenstudios.com/Paste/api/create`;
+    print $pastefile `curl -d name=SFOS -d title=PrivatePaste -d expire=43200 -d private=1 --data-urlencode text='@paste' -s https://intergenstudios.com/Paste/api/create`;
     close ($pastefile);
 } else {
     print "\n\n  Pastebin skipped.\n\n\n";
